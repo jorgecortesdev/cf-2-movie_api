@@ -27,6 +27,348 @@
       With its user-friendly interface and comprehensive database, myFlix offers an immersive experience
       for movie enthusiasts to discover, explore, and engage with their favorite films.
     </p>
+    <h2>Endpoints</h2>
+    <h3>Movies</h3>
+    <section>
+      <table class="endpoints">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GET</td>
+            <td>/movies</td>
+            <td>Retrieves a list of movies.</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>[
+  {
+    "Title": "The Dark Knight",
+    "Director": {
+      "Name": "Christopher Nolan",
+      "Bio": "Christopher Nolan is a British-American film director...",
+      "Birth": "July 30, 1970"
+    },
+    "Description": "When the menace known as the Joker wreaks havoc and chaos...",
+    "Feature": false,
+    "ImageURL": "https://www.example.com/the_dark_knight_poster.jpg",
+    "Genre": {
+      "Name": "Action",
+      "Description": "Movies intended to provide an exciting experience, usually..."
+    }
+  },
+]</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/movies/:title</td>
+            <td>Retrieves information about a specific movie by its title.</td>
+            <td>
+              <dl>
+                <dt>:title</dt>
+                <dd>The title of the movie</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>{
+  "Title": "The Dark Knight",
+  "Director": {
+    "Name": "Christopher Nolan",
+    "Bio": "Christopher Nolan is a British-American film director...",
+    "Birth": "July 30, 1970"
+  },
+  "Description": "When the menace known as the Joker wreaks havoc and chaos...",
+  "Feature": false,
+  "ImageURL": "https://www.example.com/the_dark_knight_poster.jpg",
+  "Genre": {
+    "Name": "Action",
+    "Description": "Movies intended to provide an exciting experience, usually..."
+  }
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <h3>Genres</h3>
+    <section>
+      <table class="endpoints">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GET</td>
+            <td>/genres/:name</td>
+            <td>Retrieves information about a specific genre by its name.</td>
+            <td>
+              <dl>
+                <dt>:name</dt>
+                <dd>The name of the genre</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>{
+    "Name": "Action",
+    "Description": "Movies intended to provide an exciting experience, usually..."
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <h3>Directors</h3>
+    <section>
+      <table class="endpoints">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GET</td>
+            <td>/directors/:name</td>
+            <td>Retrieves information about a specific director by their name.</td>
+            <td>
+              <dl>
+                <dt>:name</dt>
+                <dd>The name of the director</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>{
+    "Name": "Christopher Nolan",
+    "Bio": "Christopher Nolan is a British-American film director, producer, and...",
+    "Birth": "July 30, 1970"
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <h3>Users</h3>
+    <section>
+      <table class="endpoints">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>POST</td>
+            <td>/users</td>
+            <td>Creates a new user.</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Body of the<br>Request</th>
+                    <td>
+  <pre><code>{
+    "name": "Jorge",
+    "favoriteMovies": []
+}</code></pre>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>{
+    "name": "Jorge",
+    "favoriteMovies": [],
+    "id": "09896e6e-e7a1-4202-95bc-6fcf78957231"
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>PUT</td>
+            <td>/users/:id</td>
+            <td>Updates an existing user.</td>
+            <td>
+              <dl>
+                <dt>:id</dt>
+                <dd>The id of the user</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Body of the<br>Request</th>
+                    <td>
+  <pre><code>{
+    "name": "Jorge (update)"
+}</code></pre>
+                    </td>
+                  </tr>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>{
+    "id": "09896e6e-e7a1-4202-95bc-6fcf78957231",
+    "name": "Jorge (update)",
+    "favoriteMovies": []
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>POST</td>
+            <td>/users/:id/movies/:title</td>
+            <td>Adds a movie to a user's favorite movies list.</td>
+            <td>
+              <dl>
+                <dt>:id</dt>
+                <dd>The id of the user</dd>
+                <dt>:title</dt>
+                <dd>The title of the movie</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+<pre><code>The Dark Knight has been added to user 09896e6e-e7a1-4202-95bc-6fcf78957231's array</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>DELETE</td>
+            <td>/users/:id/movies/:title</td>
+            <td>Removes a movie from a user's favorite movies list.</td>
+            <td>
+              <dl>
+                <dt>:id</dt>
+                <dd>The id of the user</dd>
+                <dt>:title</dt>
+                <dd>The title of the movie</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+<pre><code>The Dark Knight has been removed from user 09896e6e-e7a1-4202-95bc-6fcf78957231's array</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>DELETE</td>
+            <td>/users/:id</td>
+            <td>Deletes a user from the system.</td>
+            <td>
+              <dl>
+                <dt>:id</dt>
+                <dd>The id of the user</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+<pre><code>User 09896e6e-e7a1-4202-95bc-6fcf78957231</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </main>
 </body>
 </html>
