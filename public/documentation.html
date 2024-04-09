@@ -54,20 +54,32 @@
                     <th>Response</th>
                     <td>
   <pre><code>[
-  {
-    "Title": "The Dark Knight",
-    "Director": {
-      "Name": "Christopher Nolan",
-      "Bio": "Christopher Nolan is a British-American film director...",
-      "Birth": "July 30, 1970"
-    },
-    "Description": "When the menace known as the Joker wreaks havoc and chaos...",
-    "Feature": false,
-    "ImageURL": "https://www.example.com/the_dark_knight_poster.jpg",
-    "Genre": {
-      "Name": "Action",
-      "Description": "Movies intended to provide an exciting experience, usually..."
-    }
+    {
+      "Genre": {
+          "Name": "Drama",
+          "Description": "Drama film"
+      },
+      "Director": {
+          "Name": "Frank Darabont",
+          "Bio": "Frank Darabont is a Hungarian-American film director, screenwriter...",
+          "Birth": "1970-01-01T00:00:01.959Z",
+          "Death": null
+      },
+      "Title": "The Shawshank Redemption",
+      "Description": "Two imprisoned men bond over a number of years, finding solace...",
+      "ImagePath": "poster.jpg",
+      "Featured": true,
+      "ReleaseYear": 1994,
+      "Actors": [
+          {
+              "Name": "Tim Robbins",
+              "Bio": "Born in West Covina, California, but raised in New York City, Tim...",
+              "Birthday": "1958-10-16T00:00:00.000Z",
+              "ImagePath": "profile.jpg"
+          },
+      ],
+      "MPA": "R",
+      "IMDb": 9.3
   },
 ]</code></pre>
                     </td>
@@ -95,19 +107,31 @@
                     <th>Response</th>
                     <td>
   <pre><code>{
-  "Title": "The Dark Knight",
-  "Director": {
-    "Name": "Christopher Nolan",
-    "Bio": "Christopher Nolan is a British-American film director...",
-    "Birth": "July 30, 1970"
-  },
-  "Description": "When the menace known as the Joker wreaks havoc and chaos...",
-  "Feature": false,
-  "ImageURL": "https://www.example.com/the_dark_knight_poster.jpg",
-  "Genre": {
-    "Name": "Action",
-    "Description": "Movies intended to provide an exciting experience, usually..."
-  }
+    "Genre": {
+        "Name": "Action",
+        "Description": "Action film"
+    },
+    "Director": {
+        "Name": "Christopher Nolan",
+        "Bio": "Christopher Nolan is a British-American film director, producer, and...",
+        "Birth": "1970-01-01T00:00:01.970Z",
+        "Death": null
+    },
+    "Title": "The Dark Knight",
+    "Description": "When the menace known as the Joker wreaks havoc and chaos on the...",
+    "ImagePath": "poster.jpg",
+    "Featured": true,
+    "ReleaseYear": 2008,
+    "Actors": [
+        {
+            "Name": "Christian Bale",
+            "Bio": "Christian Charles Philip Bale was born in Pembrokeshire, Wales, UK...",
+            "Birthday": "1974-01-30T00:00:00.000Z",
+            "ImagePath": "poster.jpg"
+        },
+    ],
+    "MPA": "R",
+    "IMDb": 9
 }</code></pre>
                     </td>
                   </tr>
@@ -194,7 +218,8 @@
   <pre><code>{
     "Name": "Christopher Nolan",
     "Bio": "Christopher Nolan is a British-American film director, producer, and...",
-    "Birth": "July 30, 1970"
+    "Birth": "1970-01-01T00:00:01.970Z",
+    "Death": null
 }</code></pre>
                     </td>
                   </tr>
@@ -218,6 +243,105 @@
         </thead>
         <tbody>
           <tr>
+            <td>GET</td>
+            <td>/users</td>
+            <td>Retrieves a list of users.</td>
+            <td>None</td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>[
+  {
+    "Email": "jorge@test.com",
+    "Name": "Jorge Cortés",
+    "Birthday": "1979-08-11T00:00:00.000Z",
+    "FavoriteMovies": [
+      {
+        "Title": "The Shawshank Redemption",
+        "Description": "Two imprisoned men bond over a number of years, finding solace...",
+        "ImagePath": "poster.jpg",
+        "Featured": true,
+        "ReleaseYear": 1994,
+        "MPA": "R",
+        "IMDb": 9.3
+      }
+    ],
+    "ToWatch": [
+      {
+        "Title": "The Shawshank Redemption",
+        "Description": "Two imprisoned men bond over a number of years, finding solace...",
+        "ImagePath": "poster.jpg",
+        "Featured": true,
+        "ReleaseYear": 1994,
+        "MPA": "R",
+        "IMDb": 9.3
+      }
+    ]
+  }
+]</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>GET</td>
+            <td>/users/:email</td>
+            <td>Retrieves information about a specific user by its email.</td>
+            <td>
+              <dl>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+  <pre><code>{
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Birthday": "1979-08-11T00:00:00.000Z",
+  "FavoriteMovies": [
+    {
+      "Title": "The Shawshank Redemption",
+      "Description": "Two imprisoned men bond over a number of years, finding solace...",
+      "ImagePath": "poster.jpg",
+      "Featured": true,
+      "ReleaseYear": 1994,
+      "MPA": "R",
+      "IMDb": 9.3
+    }
+  ],
+  "ToWatch": [
+    {
+      "Title": "The Shawshank Redemption",
+      "Description": "Two imprisoned men bond over a number of years, finding solace...",
+      "ImagePath": "poster.jpg",
+      "Featured": true,
+      "ReleaseYear": 1994,
+      "MPA": "R",
+      "IMDb": 9.3
+    }
+  ]
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
             <td>POST</td>
             <td>/users</td>
             <td>Creates a new user.</td>
@@ -231,8 +355,10 @@
                     <th>Body of the<br>Request</th>
                     <td>
   <pre><code>{
-    "name": "Jorge",
-    "favoriteMovies": []
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Password": "password",
+  "Birthday": "1979-08-11"
 }</code></pre>
                     </td>
                   </tr>
@@ -240,9 +366,9 @@
                     <th>Response</th>
                     <td>
   <pre><code>{
-    "name": "Jorge",
-    "favoriteMovies": [],
-    "id": "09896e6e-e7a1-4202-95bc-6fcf78957231"
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Birthday": "1979-08-11T00:00:00.000Z"
 }</code></pre>
                     </td>
                   </tr>
@@ -252,12 +378,12 @@
           </tr>
           <tr>
             <td>PUT</td>
-            <td>/users/:id</td>
+            <td>/users/:email</td>
             <td>Updates an existing user.</td>
             <td>
               <dl>
-                <dt>:id</dt>
-                <dd>The id of the user</dd>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
               </dl>
             </td>
           </tr>
@@ -269,7 +395,9 @@
                     <th>Body of the<br>Request</th>
                     <td>
   <pre><code>{
-    "name": "Jorge (update)"
+    "Name": "Jorge",
+    "Password": "password",
+    "Birthday": "1979-08-11"
 }</code></pre>
                     </td>
                   </tr>
@@ -277,9 +405,9 @@
                     <th>Response</th>
                     <td>
   <pre><code>{
-    "id": "09896e6e-e7a1-4202-95bc-6fcf78957231",
-    "name": "Jorge (update)",
-    "favoriteMovies": []
+    "Email": "jorge@test.com",
+    "Name": "Jorge (updated 2)",
+    "Birthday": "1979-08-11T00:00:00.000Z"
 }</code></pre>
                     </td>
                   </tr>
@@ -289,7 +417,7 @@
           </tr>
           <tr>
             <td>POST</td>
-            <td>/users/:id/movies/:title</td>
+            <td>/users/:id/movies/:title/favorite</td>
             <td>Adds a movie to a user's favorite movies list.</td>
             <td>
               <dl>
@@ -307,7 +435,23 @@
                   <tr>
                     <th>Response</th>
                     <td>
-<pre><code>The Dark Knight has been added to user 09896e6e-e7a1-4202-95bc-6fcf78957231's array</code></pre>
+<pre><code>{
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Birthday": "1979-08-11T00:00:00.000Z",
+  "FavoriteMovies": [
+      {
+          "Title": "The Shawshank Redemption",
+          "Description": "Two imprisoned men bond over a number of years, finding solace...",
+          "ImagePath": "poster.jpg",
+          "Featured": true,
+          "ReleaseYear": 1994,
+          "MPA": "R",
+          "IMDb": 9.3
+      }
+  ],
+  "ToWatch": []
+}</code></pre>
                     </td>
                   </tr>
                 </tbody>
@@ -316,7 +460,7 @@
           </tr>
           <tr>
             <td>DELETE</td>
-            <td>/users/:id/movies/:title</td>
+            <td>/users/:id/movies/:title/favorite</td>
             <td>Removes a movie from a user's favorite movies list.</td>
             <td>
               <dl>
@@ -334,7 +478,95 @@
                   <tr>
                     <th>Response</th>
                     <td>
-<pre><code>The Dark Knight has been removed from user 09896e6e-e7a1-4202-95bc-6fcf78957231's array</code></pre>
+<pre><code>{
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Birthday": "1979-08-11T00:00:00.000Z",
+  "FavoriteMovies": [],
+  "ToWatch": []
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+
+
+
+
+
+
+          <tr>
+            <td>POST</td>
+            <td>/users/:id/movies/:title/watch</td>
+            <td>Adds a movie to a user's watch movies list.</td>
+            <td>
+              <dl>
+                <dt>:id</dt>
+                <dd>The id of the user</dd>
+                <dt>:title</dt>
+                <dd>The title of the movie</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+<pre><code>{
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Birthday": "1979-08-11T00:00:00.000Z",
+  "FavoriteMovies": [],
+  "ToWatch": [
+      {
+          "Title": "The Shawshank Redemption",
+          "Description": "Two imprisoned men bond over a number of years, finding...",
+          "ImagePath": "poster.jpg",
+          "Featured": true,
+          "ReleaseYear": 1994,
+          "MPA": "R",
+          "IMDb": 9.3
+      }
+  ]
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td>DELETE</td>
+            <td>/users/:id/movies/:title/watch</td>
+            <td>Removes a movie from a user's favorite movies list.</td>
+            <td>
+              <dl>
+                <dt>:id</dt>
+                <dd>The id of the user</dd>
+                <dt>:title</dt>
+                <dd>The title of the movie</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+<pre><code>{
+  "Email": "jorge@test.com",
+  "Name": "Jorge Cortés",
+  "Birthday": "1979-08-11T00:00:00.000Z",
+  "FavoriteMovies": [],
+  "ToWatch": []
+}</code></pre>
                     </td>
                   </tr>
                 </tbody>
@@ -359,7 +591,9 @@
                   <tr>
                     <th>Response</th>
                     <td>
-<pre><code>User 09896e6e-e7a1-4202-95bc-6fcf78957231</code></pre>
+<pre><code>{
+  "message": "User jorge@test.com was deleted"
+}</code></pre>
                     </td>
                   </tr>
                 </tbody>
