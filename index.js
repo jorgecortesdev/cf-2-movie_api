@@ -1,7 +1,11 @@
 const express = require("express"),
   morgan = require('morgan');
 
+require('dotenv').config()
+
 const app = express();
+const { check, param, body, validationResult } = require('express-validator');
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -14,7 +18,23 @@ const Users = Models.User;
 app.use(morgan('common'));
 app.use(express.static('public'));
 
-mongoose.connect('mongodb://localhost:27017/cfDB', {});
+mongoose.connect(process.env.CONNECTION_URI, {});
+
+const cors = require('cors');
+let allowedOrigins = [
+  'http://localhost:8080'
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1) { // If a specific origin isn't found on the list of allowed origins
+      let message = `The CORS policy for this application doesn't allow access from origin ${origin}`;
+      return callback(new Error(message ), false);
+    }
+    return callback(null, true);
+  }
+}));
 
 let auth = require('./auth')(app);
 
@@ -125,7 +145,7 @@ app.get('/directors/:name', passport.authenticate('jwt', { session: false }), as
  */
 app.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
-  const users = await Users
+    const users = await Users
       .find()
       .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
       .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
@@ -175,42 +195,56 @@ app.get('/users/:email', passport.authenticate('jwt', { session: false }), async
  * @param {string} req.body.name - The name of the new user.
  * @returns {Object} The newly created user.
  */
-app.post('/users', async (req, res) => {
-  try {
-    const newUser = req.body;
+app.post('/users',
+  [
+    body('Name', 'Name is required').isLength({min: 5}),
+    body('Password', 'Password is required').not().isEmpty(),
+    body('Email', 'Email does not appear to be valid').isEmail()
+  ], async (req, res) => {
+    try {
+      // check validation object for errors
+      let errors = validationResult(req);
 
-    let user = await Users.findOne({ Email: newUser.Email });
-
-    if (user) {
-      return res.status(400).send({ error: `${newUser.Email} already exists`});
-    }
-
-    user = await Users.create(
-      {
-        Email: newUser.Email,
-        Name: newUser.Name,
-        Password: newUser.Password,
-        Birthday: newUser.Birthday
+      if (!errors.isEmpty()) {
+        return res.status(422).json({ error: errors.array() });
       }
-    );
 
-    return res.status(201).json({
-      Email: user.Email,
-      Name: user.Name,
-      Birthday: user.Birthday
-    });
-  } catch (error) {
-    console.error(error);
+      const newUser = req.body;
 
-    if (error.name === "ValidationError") {
-      const message = Object.values(error.errors).map(value => value.message);
-      return res.status(400).json({
-        error: message
+      let hashedPassword = Users.hashPassword(newUser.Password);
+
+      let user = await Users.findOne({ Email: newUser.Email });
+
+      if (user) {
+        return res.status(400).send({ error: `${newUser.Email} already exists`});
+      }
+
+      user = await Users.create(
+        {
+          Email: newUser.Email,
+          Name: newUser.Name,
+          Password: hashedPassword,
+          Birthday: newUser.Birthday
+        }
+      );
+
+      return res.status(201).json({
+        Email: user.Email,
+        Name: user.Name,
+        Birthday: user.Birthday
       });
-    }
+    } catch (error) {
+      console.error(error);
 
-    return res.status(500).json({ error: error.message });
-  }
+      if (error.name === "ValidationError") {
+        const message = Object.values(error.errors).map(value => value.message);
+        return res.status(400).json({
+          error: message
+        });
+      }
+
+      return res.status(500).json({ error: error.message });
+    }
 });
 
 /**
@@ -222,9 +256,21 @@ app.post('/users', async (req, res) => {
  * @param {string} req.body.name - The new name for the user.
  * @returns {Object} The updated user.
  */
-app.put('/users/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
+app.put('/users/:email',
+[
+  body('Name', 'Name is required').isLength({min: 5}).optional(),
+  body('Password', 'Password is required').not().isEmpty().optional()
+],
+passport.authenticate('jwt', { session: false }), async (req, res) => {
   if(req.user.Email !== req.params.email) {
     return res.status(400).send('Permission denied');
+  }
+
+  // check validation object for errors
+  let errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).json({ error: errors.array() });
   }
 
   try {
@@ -444,6 +490,7 @@ app.use((err, req, res, next) => {
 });
 
 // listen for requests
-app.listen(8080, () => {
-  console.log('Your app is listening on port 8080.');
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Your app is listening on port ${port}`);
 });
