@@ -1,6 +1,8 @@
 const express = require("express"),
   morgan = require('morgan');
 
+require('dotenv').config()
+
 const app = express();
 const { check, param, body, validationResult } = require('express-validator');
 
@@ -16,7 +18,7 @@ const Users = Models.User;
 app.use(morgan('common'));
 app.use(express.static('public'));
 
-mongoose.connect('mongodb://localhost:27017/cfDB', {});
+mongoose.connect(process.env.CONNECTION_URI, {});
 
 const cors = require('cors');
 let allowedOrigins = [
@@ -488,6 +490,7 @@ app.use((err, req, res, next) => {
 });
 
 // listen for requests
-app.listen(8080, () => {
-  console.log('Your app is listening on port 8080.');
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Your app is listening on port ${port}`);
 });
