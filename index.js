@@ -195,6 +195,8 @@ app.post('/users', async (req, res) => {
   try {
     const newUser = req.body;
 
+    let hashedPassword = Users.hashPassword(newUser.Password);
+
     let user = await Users.findOne({ Email: newUser.Email });
 
     if (user) {
@@ -205,7 +207,7 @@ app.post('/users', async (req, res) => {
       {
         Email: newUser.Email,
         Name: newUser.Name,
-        Password: newUser.Password,
+        Password: hashedPassword,
         Birthday: newUser.Birthday
       }
     );
