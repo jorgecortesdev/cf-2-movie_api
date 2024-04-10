@@ -1,23 +1,25 @@
 const express = require("express"),
-  morgan = require('morgan'),
-  bodyParser = require('body-parser'),
-  uuid = require('uuid');
+  morgan = require('morgan');
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const mongoose = require('mongoose');
-const Models = require('./models.js');
 
+const Models = require('./models.js');
 const Movies = Models.Movie;
 const Users = Models.User;
-const Actors = Models.Actors;
 
 app.use(morgan('common'));
 app.use(express.static('public'));
 
 mongoose.connect('mongodb://localhost:27017/cfDB', {});
+
+let auth = require('./auth')(app);
+
+const passport = require('passport');
+require('./passport');
 
 /**
  * Retrieves a list of movies.
@@ -25,7 +27,7 @@ mongoose.connect('mongodb://localhost:27017/cfDB', {});
  * @route GET /movies
  * @returns {object[]} List of movies
  */
-app.get('/movies', async (req, res) => {
+app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const movies = await Movies
       .find()
@@ -47,7 +49,7 @@ app.get('/movies', async (req, res) => {
  * @param {string} req.params.title - The title of the movie to retrieve
  * @returns {object} Information about the movie
  */
-app.get('/movies/:title', async (req, res) => {
+app.get('/movies/:title', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const { title } = req.params;
     const movie = await Movies
@@ -74,7 +76,7 @@ app.get('/movies/:title', async (req, res) => {
  * @param {string} req.params.name - The name of the genre to retrieve
  * @returns {object} Information about the genre
  */
-app.get('/genres/:name', async (req, res) => {
+app.get('/genres/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const { name } = req.params;
     const movie = await Movies.findOne({ 'Genre.Name': name });
@@ -98,7 +100,7 @@ app.get('/genres/:name', async (req, res) => {
  * @param {string} req.params.name - The name of the director to retrieve.
  * @returns {Object} Information about the director.
  */
-app.get('/directors/:name', async (req, res) => {
+app.get('/directors/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const { name } = req.params;
     const movie = await Movies.findOne({ 'Director.Name': name });
@@ -121,7 +123,7 @@ app.get('/directors/:name', async (req, res) => {
  * @route GET /users
  * @returns {object[]} List of users
  */
-app.get('/users', async (req, res) => {
+app.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
   const users = await Users
       .find()
@@ -144,7 +146,7 @@ app.get('/users', async (req, res) => {
  * @param {string} req.params.email - The email of the user to retrieve.
  * @returns {Object} Information about the user.
  */
-app.get('/users/:email', async (req, res) => {
+app.get('/users/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
   try {
     const { email } = req.params;
     const user = await Users
@@ -220,7 +222,11 @@ app.post('/users', async (req, res) => {
  * @param {string} req.body.name - The new name for the user.
  * @returns {Object} The updated user.
  */
-app.put('/users/:email', async (req, res) => {
+app.put('/users/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.Email !== req.params.email) {
+    return res.status(400).send('Permission denied');
+  }
+
   try {
     const filter = { Email: req.params.email };
     const options = { new: true };
@@ -267,7 +273,11 @@ app.put('/users/:email', async (req, res) => {
  * @param {string} req.params.movieId - The id of the movie to be added.
  * @returns {Object} The updated user.
  */
-app.post('/users/:email/movies/:movieId/favorite', async (req, res) => {
+app.post('/users/:email/movies/:movieId/favorite', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.Email !== req.params.email) {
+    return res.status(400).send('Permission denied');
+  }
+
   try {
     const filter = { Email: req.params.email };
     const options = { new: true };
@@ -299,7 +309,11 @@ app.post('/users/:email/movies/:movieId/favorite', async (req, res) => {
  * @param {string} req.params.movieId - The id of the movie to be removed.
  * @returns {Object} The updated user.
  */
-app.delete('/users/:email/movies/:movieId/favorite', async (req, res) => {
+app.delete('/users/:email/movies/:movieId/favorite', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.Email !== req.params.email) {
+    return res.status(400).send('Permission denied');
+  }
+
   try {
     const filter = { Email: req.params.email };
     const options = { new: true };
@@ -331,7 +345,11 @@ app.delete('/users/:email/movies/:movieId/favorite', async (req, res) => {
  * @param {string} req.params.movieId - The id of the movie to be added.
  * @returns {Object} The updated user.
  */
-app.post('/users/:email/movies/:movieId/watch', async (req, res) => {
+app.post('/users/:email/movies/:movieId/watch', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.Email !== req.params.email) {
+    return res.status(400).send('Permission denied');
+  }
+
   try {
     const filter = { Email: req.params.email };
     const options = { new: true };
@@ -363,7 +381,11 @@ app.post('/users/:email/movies/:movieId/watch', async (req, res) => {
  * @param {string} req.params.movieId - The id of the movie to be removed.
  * @returns {Object} The updated user.
  */
-app.delete('/users/:email/movies/:movieId/watch', async (req, res) => {
+app.delete('/users/:email/movies/:movieId/watch', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.Email !== req.params.email) {
+    return res.status(400).send('Permission denied');
+  }
+
   try {
     const filter = { Email: req.params.email };
     const options = { new: true };
@@ -394,7 +416,11 @@ app.delete('/users/:email/movies/:movieId/watch', async (req, res) => {
  * @param {string} req.params.id - The unique identifier of the user to be deleted.
  * @returns {string} Success message indicating the user has been deleted.
  */
-app.delete('/users/:email', async (req, res) => {
+app.delete('/users/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
+  if(req.user.Email !== req.params.email) {
+    return res.status(400).send('Permission denied');
+  }
+
   try {
     const { email } = req.params;
 
