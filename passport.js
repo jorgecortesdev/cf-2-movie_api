@@ -1,10 +1,9 @@
 const passport = require('passport'),
   LocalStrategy = require('passport-local').Strategy,
-  Models = require('./models.js'),
+  User = require('./models/user'),
   passportJWT = require('passport-jwt');
 
-let Users = Models.User,
-  JWTStrategy = passportJWT.Strategy,
+let JWTStrategy = passportJWT.Strategy,
   ExtractJWT = passportJWT.ExtractJwt;
 
 passport.use(
@@ -15,7 +14,7 @@ passport.use(
     },
     async (email, password, callback) => {
       console.log(`${email} ${password}`);
-      await Users
+      await User
         .findOne({ Email: email })
         .select(['-_id', '-CreatedAt', '-UpdatedAt'])
         .then((user) => {
@@ -47,7 +46,7 @@ passport.use(new JWTStrategy({
   jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
   secretOrKey: 'your_jwt_secret'
 }, async (jwtPayload, callback) => {
-  return await Users
+  return await User
     .findOne({ Email: jwtPayload.Email })
     .select(['-_id', '-CreatedAt', '-UpdatedAt'])
     .then((user) => {
