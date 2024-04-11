@@ -416,13 +416,55 @@
             </td>
           </tr>
           <tr>
+            <td>DELETE</td>
+            <td>/users/:email</td>
+            <td>Deletes a user from the system.</td>
+            <td>
+              <dl>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
+              </dl>
+            </td>
+          </tr>
+          <tr>
+            <td colspan="4" class="api-examples">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>Response</th>
+                    <td>
+<pre><code>{
+  "message": "User jorge@test.com was deleted"
+}</code></pre>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+    <h3>Lists</h3>
+    <section>
+      <table class="endpoints">
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>URL</th>
+            <th>Description</th>
+            <th>Parameters</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
             <td>POST</td>
-            <td>/users/:id/movies/:title/favorite</td>
+            <td>/lists/:email/favorite/:title</td>
             <td>Adds a movie to a user's favorite movies list.</td>
             <td>
               <dl>
-                <dt>:id</dt>
-                <dd>The id of the user</dd>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
                 <dt>:title</dt>
                 <dd>The title of the movie</dd>
               </dl>
@@ -460,12 +502,12 @@
           </tr>
           <tr>
             <td>DELETE</td>
-            <td>/users/:id/movies/:title/favorite</td>
+            <td>/lists/:email/favorite/:title</td>
             <td>Removes a movie from a user's favorite movies list.</td>
             <td>
               <dl>
-                <dt>:id</dt>
-                <dd>The id of the user</dd>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
                 <dt>:title</dt>
                 <dd>The title of the movie</dd>
               </dl>
@@ -491,20 +533,14 @@
               </table>
             </td>
           </tr>
-
-
-
-
-
-
           <tr>
             <td>POST</td>
-            <td>/users/:id/movies/:title/watch</td>
+            <td>/lists/:email/watch/:title</td>
             <td>Adds a movie to a user's watch movies list.</td>
             <td>
               <dl>
-                <dt>:id</dt>
-                <dd>The id of the user</dd>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
                 <dt>:title</dt>
                 <dd>The title of the movie</dd>
               </dl>
@@ -542,12 +578,12 @@
           </tr>
           <tr>
             <td>DELETE</td>
-            <td>/users/:id/movies/:title/watch</td>
+            <td>/lists/:email/watch/:title</td>
             <td>Removes a movie from a user's favorite movies list.</td>
             <td>
               <dl>
-                <dt>:id</dt>
-                <dd>The id of the user</dd>
+                <dt>:email</dt>
+                <dd>The email of the user</dd>
                 <dt>:title</dt>
                 <dd>The title of the movie</dd>
               </dl>
@@ -566,33 +602,6 @@
   "Birthday": "1979-08-11T00:00:00.000Z",
   "FavoriteMovies": [],
   "ToWatch": []
-}</code></pre>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </td>
-          </tr>
-          <tr>
-            <td>DELETE</td>
-            <td>/users/:id</td>
-            <td>Deletes a user from the system.</td>
-            <td>
-              <dl>
-                <dt>:id</dt>
-                <dd>The id of the user</dd>
-              </dl>
-            </td>
-          </tr>
-          <tr>
-            <td colspan="4" class="api-examples">
-              <table>
-                <tbody>
-                  <tr>
-                    <th>Response</th>
-                    <td>
-<pre><code>{
-  "message": "User jorge@test.com was deleted"
 }</code></pre>
                     </td>
                   </tr>

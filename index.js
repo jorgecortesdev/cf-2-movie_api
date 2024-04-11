@@ -1,26 +1,24 @@
-const express = require("express"),
-  morgan = require('morgan');
+// dependencies
+const express = require("express");
+const logger = require('morgan');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const passport = require('passport');
+const { body } = require('express-validator');
+const path = require('path');
 
 require('dotenv').config()
 
 const app = express();
-const { check, param, body, validationResult } = require('express-validator');
 
+app.use(logger('common'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
 
-const mongoose = require('mongoose');
-
-const Models = require('./models.js');
-const Movies = Models.Movie;
-const Users = Models.User;
-
-app.use(morgan('common'));
-app.use(express.static('public'));
-
+// mongoose
 mongoose.connect(process.env.CONNECTION_URI, {});
 
-const cors = require('cors');
 let allowedOrigins = [
   'http://localhost:8080'
 ];
@@ -38,8 +36,13 @@ app.use(cors({
 
 let auth = require('./auth')(app);
 
-const passport = require('passport');
 require('./passport');
+
+const users = require('./controllers/users');
+const lists = require('./controllers/lists');
+const movies = require('./controllers/movies');
+const genres = require('./controllers/genres');
+const directors = require('./controllers/directors');
 
 /**
  * Retrieves a list of movies.
@@ -47,20 +50,7 @@ require('./passport');
  * @route GET /movies
  * @returns {object[]} List of movies
  */
-app.get('/movies', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const movies = await Movies
-      .find()
-      .select(['-_id', '-CreatedAt', '-UpdatedAt'])
-      .populate('Actors', ['-_id', '-CreatedAt', '-UpdatedAt']);
-
-    return res.status(200).json(movies);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.get('/movies', passport.authenticate('jwt', { session: false }), movies.all);
 
 /**
  * Retrieves information about a specific movie by its title.
@@ -69,25 +59,7 @@ app.get('/movies', passport.authenticate('jwt', { session: false }), async (req,
  * @param {string} req.params.title - The title of the movie to retrieve
  * @returns {object} Information about the movie
  */
-app.get('/movies/:title', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const { title } = req.params;
-    const movie = await Movies
-      .findOne({ Title: title })
-      .select(['-_id', '-CreatedAt', '-UpdatedAt'])
-      .populate('Actors', ['-_id', '-CreatedAt', '-UpdatedAt']);
-
-    if (movie) {
-      return res.status(200).json(movie);
-    }
-
-    return res.status(400).json({ error: 'no such movie' });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.get('/movies/:title', passport.authenticate('jwt', { session: false }), movies.getByTitle);
 
 /**
  * Retrieves information about a specific genre by its name.
@@ -96,22 +68,7 @@ app.get('/movies/:title', passport.authenticate('jwt', { session: false }), asyn
  * @param {string} req.params.name - The name of the genre to retrieve
  * @returns {object} Information about the genre
  */
-app.get('/genres/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const { name } = req.params;
-    const movie = await Movies.findOne({ 'Genre.Name': name });
-
-    if (movie) {
-      return res.status(200).json(movie.Genre);
-    }
-
-    return res.status(400).json({ error: 'no such genre' });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.get('/genres/:name', passport.authenticate('jwt', { session: false }), genres.getByName);
 
 /**
  * Retrieves information about a specific director by their name.
@@ -120,22 +77,7 @@ app.get('/genres/:name', passport.authenticate('jwt', { session: false }), async
  * @param {string} req.params.name - The name of the director to retrieve.
  * @returns {Object} Information about the director.
  */
-app.get('/directors/:name', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const { name } = req.params;
-    const movie = await Movies.findOne({ 'Director.Name': name });
-
-    if (movie) {
-      return res.status(200).json(movie.Director);
-    }
-
-    return res.status(400).json({ error: 'no such director' });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.get('/directors/:name', passport.authenticate('jwt', { session: false }), directors.getByName);
 
 /**
  * Retrieves a list of users.
@@ -143,21 +85,7 @@ app.get('/directors/:name', passport.authenticate('jwt', { session: false }), as
  * @route GET /users
  * @returns {object[]} List of users
  */
-app.get('/users', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const users = await Users
-      .find()
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
-
-    return res.status(200).json(users);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.get('/users', passport.authenticate('jwt', { session: false }), users.all);
 
 /**
  * Retrieves information about a specific user by their email.
@@ -166,26 +94,7 @@ app.get('/users', passport.authenticate('jwt', { session: false }), async (req, 
  * @param {string} req.params.email - The email of the user to retrieve.
  * @returns {Object} Information about the user.
  */
-app.get('/users/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  try {
-    const { email } = req.params;
-    const user = await Users
-    .findOne({ Email: email })
-    .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-    .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-    .populate('ToWatch', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
-
-    if (user) {
-      return res.status(200).json(user);
-    }
-
-    return res.status(400).json({ error: 'no such user' });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.get('/users/:email', passport.authenticate('jwt', { session: false }), users.getByEmail);
 
 /**
  * Creates a new user.
@@ -195,57 +104,11 @@ app.get('/users/:email', passport.authenticate('jwt', { session: false }), async
  * @param {string} req.body.name - The name of the new user.
  * @returns {Object} The newly created user.
  */
-app.post('/users',
-  [
+app.post('/users', [
     body('Name', 'Name is required').isLength({min: 5}),
     body('Password', 'Password is required').not().isEmpty(),
     body('Email', 'Email does not appear to be valid').isEmail()
-  ], async (req, res) => {
-    try {
-      // check validation object for errors
-      let errors = validationResult(req);
-
-      if (!errors.isEmpty()) {
-        return res.status(422).json({ error: errors.array() });
-      }
-
-      const newUser = req.body;
-
-      let hashedPassword = Users.hashPassword(newUser.Password);
-
-      let user = await Users.findOne({ Email: newUser.Email });
-
-      if (user) {
-        return res.status(400).send({ error: `${newUser.Email} already exists`});
-      }
-
-      user = await Users.create(
-        {
-          Email: newUser.Email,
-          Name: newUser.Name,
-          Password: hashedPassword,
-          Birthday: newUser.Birthday
-        }
-      );
-
-      return res.status(201).json({
-        Email: user.Email,
-        Name: user.Name,
-        Birthday: user.Birthday
-      });
-    } catch (error) {
-      console.error(error);
-
-      if (error.name === "ValidationError") {
-        const message = Object.values(error.errors).map(value => value.message);
-        return res.status(400).json({
-          error: message
-        });
-      }
-
-      return res.status(500).json({ error: error.message });
-    }
-});
+  ], users.create);
 
 /**
  * Updates an existing user.
@@ -256,60 +119,11 @@ app.post('/users',
  * @param {string} req.body.name - The new name for the user.
  * @returns {Object} The updated user.
  */
-app.put('/users/:email',
-[
-  body('Name', 'Name is required').isLength({min: 5}).optional(),
-  body('Password', 'Password is required').not().isEmpty().optional()
-],
-passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if(req.user.Email !== req.params.email) {
-    return res.status(400).send('Permission denied');
-  }
-
-  // check validation object for errors
-  let errors = validationResult(req);
-
-  if (!errors.isEmpty()) {
-    return res.status(422).json({ error: errors.array() });
-  }
-
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    let update = {};
-
-    // update name if exists
-    if (req.body.Name) {
-      update['Name'] = req.body.Name;
-    }
-
-    // update password if exists
-    if (req.body.Password) {
-      update['Password'] = req.body.Password;
-    }
-
-    // update birthday if exists
-    if (req.body.Birthday) {
-      update['Birthday'] = req.body.Birthday;
-    }
-
-    const user = await Users.findOneAndUpdate(filter, update, options);
-
-    if (! user) {
-      return res.status(400).send({ error: `${req.params.email} was not found` });
-    }
-
-    return res.status(200).json({
-      Email: user.Email,
-      Name: user.Name,
-      Birthday: user.Birthday
-    });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.put('/users/:email', [
+    body('Name', 'Name is required').isLength({min: 5}).optional(),
+    body('Password', 'Password is required').not().isEmpty().optional()
+  ],
+  passport.authenticate('jwt', { session: false }), users.update);
 
 /**
  * Adds a movie to a user's favorite movies list.
@@ -319,33 +133,7 @@ passport.authenticate('jwt', { session: false }), async (req, res) => {
  * @param {string} req.params.movieId - The id of the movie to be added.
  * @returns {Object} The updated user.
  */
-app.post('/users/:email/movies/:movieId/favorite', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if(req.user.Email !== req.params.email) {
-    return res.status(400).send('Permission denied');
-  }
-
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $push: { FavoriteMovies: req.params.movieId } };
-
-    const user = await Users
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
-
-    if (! user) {
-      return res.status(400).send({ error: `${req.params.email} was not found` });
-    }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.post('/lists/:email/favorite/:movieId', passport.authenticate('jwt', { session: false }), lists.addFavorite);
 
 /**
  * Removes a movie from a user's favorite movies list.
@@ -355,33 +143,7 @@ app.post('/users/:email/movies/:movieId/favorite', passport.authenticate('jwt', 
  * @param {string} req.params.movieId - The id of the movie to be removed.
  * @returns {Object} The updated user.
  */
-app.delete('/users/:email/movies/:movieId/favorite', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if(req.user.Email !== req.params.email) {
-    return res.status(400).send('Permission denied');
-  }
-
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $pull: { FavoriteMovies: req.params.movieId } };
-
-    const user = await Users
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
-
-    if (! user) {
-      return res.status(400).send({ error: `${req.params.email} was not found` });
-    }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.delete('/lists/:email/favorite/:movieId', passport.authenticate('jwt', { session: false }), lists.removeFavorite);
 
 /**
  * Adds a movie to a user's watch movies list.
@@ -391,33 +153,7 @@ app.delete('/users/:email/movies/:movieId/favorite', passport.authenticate('jwt'
  * @param {string} req.params.movieId - The id of the movie to be added.
  * @returns {Object} The updated user.
  */
-app.post('/users/:email/movies/:movieId/watch', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if(req.user.Email !== req.params.email) {
-    return res.status(400).send('Permission denied');
-  }
-
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $push: { ToWatch: req.params.movieId } };
-
-    const user = await Users
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
-
-    if (! user) {
-      return res.status(400).send({ error: `${req.params.email} was not found` });
-    }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.post('/lists/:email/watch/:movieId', passport.authenticate('jwt', { session: false }), lists.addToWatch);
 
 /**
  * Removes a movie from a user's watch movies list.
@@ -427,33 +163,7 @@ app.post('/users/:email/movies/:movieId/watch', passport.authenticate('jwt', { s
  * @param {string} req.params.movieId - The id of the movie to be removed.
  * @returns {Object} The updated user.
  */
-app.delete('/users/:email/movies/:movieId/watch', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if(req.user.Email !== req.params.email) {
-    return res.status(400).send('Permission denied');
-  }
-
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $pull: { ToWatch: req.params.movieId } };
-
-    const user = await Users
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-_id', '-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
-
-    if (! user) {
-      return res.status(400).send({ error: `${req.params.email} was not found` });
-    }
-
-    return res.status(200).json(user);
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+app.delete('/lists/:email/watch/:movieId', passport.authenticate('jwt', { session: false }), lists.removeToWatch);
 
 /**
  * Deletes a user from the system.
@@ -462,28 +172,9 @@ app.delete('/users/:email/movies/:movieId/watch', passport.authenticate('jwt', {
  * @param {string} req.params.id - The unique identifier of the user to be deleted.
  * @returns {string} Success message indicating the user has been deleted.
  */
-app.delete('/users/:email', passport.authenticate('jwt', { session: false }), async (req, res) => {
-  if(req.user.Email !== req.params.email) {
-    return res.status(400).send('Permission denied');
-  }
+app.delete('/users/:email', passport.authenticate('jwt', { session: false }), users.delete);
 
-  try {
-    const { email } = req.params;
-
-    const user = await Users.findOneAndDelete({ Email: email });
-
-    if (!user) {
-      return res.status(400).send({ error: `${email} was not found` });
-    }
-
-    return res.status(200).send({ message: `User ${email} was deleted` });
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
-
+// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send('Something broke!');
