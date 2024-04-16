@@ -1,20 +1,69 @@
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
+
 const Movie = require('../models/movie');
 
-module.exports = {};
-
-module.exports.getByName = async function (req, res) {
+/**
+ * @swagger
+ * /directors/{name}:
+ *  get:
+ *    summary: Retrieves information about a specific director by their name.
+ *    tags:
+ *      - Director
+ *    description: Retrieves information about a specific director by their name.
+ *    parameters:
+ *      - in: path
+ *        name: name
+ *        required: true
+ *        description: The name of the director to retrieve.
+ *        schema:
+ *          type: string
+ *    security:
+ *      - bearerAuth: []
+ *    responses:
+ *      200:
+ *        description: A single director.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                success:
+ *                  type: boolean
+ *                  example: true
+ *                message:
+ *                  type: string
+ *                  example: Director details retrieved successfully
+ *                data:
+ *                  $ref: '#/components/schemas/DirectorResponse'
+ *      401:
+ *        $ref: '#/components/responses/UnauthorizedError'
+ *      404:
+ *        $ref: '#/components/responses/NotFound'
+ *      500:
+ *        $ref: '#/components/responses/ApplicationError'
+*/
+router.get('/:name', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
   try {
     const { name } = req.params;
     const movie = await Movie.findOne({ 'Director.Name': name });
 
     if (movie) {
-      return res.status(200).json(movie.Director);
+      return res.sendSuccessResponse(
+        'Director details retrieved successfully',
+        movie.Director,
+        200
+      );
     }
 
-    return res.status(400).json({ error: 'no such director' });
+    return res.sendErrorResponse(
+      'No such director',
+      404
+    );
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
+    next(error);
   }
-};
+});
+
+module.exports = router;
