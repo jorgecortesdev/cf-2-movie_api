@@ -1,40 +1,125 @@
+const express = require('express');
+const router = express.Router();
+const passport = require('passport');
+
 const Movie = require('../models/movie');
 const Actor = require('../models/actor');
 
-module.exports = {};
-
-module.exports.all = async function async (req, res) {
+/**
+ * @swagger
+ * /movies:
+ *  get:
+ *    summary: Retrieves all movies.
+ *    tags:
+ *      - Movie
+ *    description: Retrieves all movies.
+ *    security:
+ *      - bearerAuth: []
+ *    responses:
+ *      200:
+ *        description: An array of movies.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                success:
+ *                  type: boolean
+ *                  example: true
+ *                message:
+ *                  type: string
+ *                  example: Movies retrieved successfully
+ *                data:
+ *                  type: array
+ *                  items:
+ *                    $ref: '#/components/schemas/MovieResponse'
+ *      401:
+ *        $ref: '#/components/responses/UnauthorizedError'
+ *      500:
+ *        $ref: '#/components/responses/ApplicationError'
+*/
+router.get('/', passport.authenticate('jwt', { session: false }), async function (req, res) {
   try {
     const movies = await Movie
       .find()
-      .select(['-_id', '-CreatedAt', '-UpdatedAt'])
+      .select(['-CreatedAt', '-UpdatedAt'])
       .populate('Actors', ['-_id', '-CreatedAt', '-UpdatedAt']);
 
-    return res.status(200).json(movies);
+    return res.sendSuccessResponse(
+      'Movies retrieved successfully',
+      movies,
+      200
+    );
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
+    next(error);
   }
-};
+});
 
-module.exports.getByTitle = async function (req, res) {
+
+/**
+ * @swagger
+ * /movies/{title}:
+ *  get:
+ *    summary: Retrieves information about a specific movie by their title.
+ *    tags:
+ *      - Movie
+ *    description: Retrieves information about a specific movie by their title.
+ *    parameters:
+ *      - in: path
+ *        name: title
+ *        required: true
+ *        description: The title of the movie to retrieve.
+ *        schema:
+ *          type: string
+ *    security:
+ *      - bearerAuth: []
+ *    responses:
+ *      200:
+ *        description: A single movie.
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                success:
+ *                  type: boolean
+ *                  example: true
+ *                message:
+ *                  type: string
+ *                  example: Movie retrieved successfully
+ *                data:
+ *                  $ref: '#/components/schemas/MovieResponse'
+ *      401:
+ *        $ref: '#/components/responses/UnauthorizedError'
+ *      404:
+ *        $ref: '#/components/responses/NotFound'
+ *      500:
+ *        $ref: '#/components/responses/ApplicationError'
+*/
+router.get('/:title', passport.authenticate('jwt', { session: false }), async function (req, res) {
   try {
     const { title } = req.params;
 
     const movie = await Movie
       .findOne({ Title: title })
-      .select(['-_id', '-CreatedAt', '-UpdatedAt'])
+      .select(['-CreatedAt', '-UpdatedAt'])
       .populate('Actors', ['-_id', '-CreatedAt', '-UpdatedAt']);
 
     if (movie) {
-      return res.status(200).json(movie);
+      return res.sendSuccessResponse(
+        'Movie retrieved successfully',
+        movie,
+        200
+      );
     }
 
-    return res.status(400).json({ error: 'no such movie' });
+    return res.sendErrorResponse(
+      'No such movie',
+      404
+    );
   } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
+    next(error);
   }
-};
+});
+
+module.exports = router;

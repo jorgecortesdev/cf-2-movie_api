@@ -15,21 +15,86 @@ let generateJWTToken = (user) => {
 
 /* POST login. */
 module.exports = (router) => {
+  /**
+   * @swagger
+   * /login:
+   *  post:
+   *    tags:
+   *      - Auth
+   *    summary: Create an auth token.
+   *    description: Create an auth token.
+   *    requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *          schema:
+   *            $ref: '#/components/schemas/LoginUserInput'
+   *    responses:
+   *      200:
+   *        description: The new user.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                success:
+   *                  type: boolean
+   *                  example: true
+   *                message:
+   *                  type: string
+   *                  example: You are successfully logged in.
+   *                data:
+   *                  type: object
+   *                  properties:
+   *                    user:
+   *                      $ref: '#/components/schemas/UserResponse'
+   *                    token:
+   *                      type: string
+   *                      example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+   *      400:
+   *        description: Incorrect email or password.
+   *        content:
+   *          application/json:
+   *            schema:
+   *              type: object
+   *              properties:
+   *                success:
+   *                  type: boolean
+   *                  example: false
+   *                error:
+   *                  type: object
+   *                  properties:
+   *                    code:
+   *                      type: integer
+   *                      example: 400
+   *                    message:
+   *                      type: string
+   *                      example: Incorrect email or password.
+   *      500:
+   *        $ref: '#/components/responses/ApplicationError'
+   */
   router.post('/login', (req, res) => {
     passport.authenticate('local', { session: false }, (error, user, info) => {
       if (error || !user) {
-        return res.status(400).json({
-          message: 'Something is not right',
-          info: info,
-          user: user
-        });
+        return res.sendErrorResponse(
+          info.message,
+          400
+        );
       }
+
       req.login(user, { session: false }, (error) => {
         if (error) {
-          res.send(error);
+          res.sendErrorResponse(
+            error
+          );
         }
+
         let token = generateJWTToken(user.toJSON());
-        return res.json({ user, token });
+        return res.sendSuccessResponse(
+          'You are successfully logged in',
+          { user, token },
+          200
+        );
       });
     })(req, res);
   });
