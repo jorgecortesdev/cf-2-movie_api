@@ -26,13 +26,16 @@ const mongoose = require('mongoose');
  *        Birthday: 1974-01-30T00:00:00.000Z
  *        ImagePath: profile.jpg
  */
-let actorSchema = mongoose.Schema({
-  Name: { type: String, required: true },
-  Bio: { type: String, required: true },
-  Birthday: Date,
-  ImagePath: { type: String, required: true },
-}, {
-  timestamps: { createdAt: 'CreatedAt', updatedAt: 'UpdatedAt' }
-});
+const actorSchema = mongoose.Schema(
+  {
+    Name: { type: String, required: true },
+    Bio: { type: String, required: true },
+    Birthday: Date,
+    ImagePath: { type: String, required: true },
+  },
+  {
+    timestamps: { createdAt: 'CreatedAt', updatedAt: 'UpdatedAt' },
+  },
+);
 
 module.exports = mongoose.model('Actor', actorSchema);

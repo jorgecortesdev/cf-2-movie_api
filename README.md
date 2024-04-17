@@ -1,5 +1,20 @@
 # cf-2-movie_api
 
+## Usage
+
+For consistency, we will pin a `node` version for this project locally. We will use `nvm` to manage the version. Check out the `.nvmrc` file for the `node` version.
+
+```
+nvm install
+nvm use
+```
+
+## Code styling and problems
+
+```
+npm run lint
+```
+
 ## Uploading the database
 
 ```

@@ -50,34 +50,30 @@ const User = require('../models/user');
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.post('/:email/favorite/:movieId', passport.authenticate('jwt', { session: false }), async function (req, res) {
-  if(req.user.Email !== req.params.email) {
-    return res.sendErrorResponse(
-      'Permission denied',
-      403
-    );
-  }
+router.post(
+  '/:email/favorite/:movieId',
+  passport.authenticate('jwt', { session: false }),
+  async function (req, res, next) {
+    if (req.user.Email !== req.params.email) {
+      return res.sendErrorResponse('Permission denied', 403);
+    }
 
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $push: { FavoriteMovies: req.params.movieId } };
+    try {
+      const filter = { Email: req.params.email };
+      const options = { new: true };
+      const update = { $push: { FavoriteMovies: req.params.movieId } };
 
-    const user = await User
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options)
+        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
+        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
+        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
 
-    return res.sendSuccessResponse(
-      'User updated successfully',
-      user,
-      200
-    );
-  } catch (error) {
-    next(error);
-  }
-});
+      return res.sendSuccessResponse('User updated successfully', user, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 /**
  * @swagger
@@ -125,34 +121,30 @@ router.post('/:email/favorite/:movieId', passport.authenticate('jwt', { session:
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.delete('/:email/favorite/:movieId', passport.authenticate('jwt', { session: false }), async function (req, res) {
-  if(req.user.Email !== req.params.email) {
-    return res.sendErrorResponse(
-      'Permission denied',
-      403
-    );
-  }
+router.delete(
+  '/:email/favorite/:movieId',
+  passport.authenticate('jwt', { session: false }),
+  async function (req, res, next) {
+    if (req.user.Email !== req.params.email) {
+      return res.sendErrorResponse('Permission denied', 403);
+    }
 
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $pull: { FavoriteMovies: req.params.movieId } };
+    try {
+      const filter = { Email: req.params.email };
+      const options = { new: true };
+      const update = { $pull: { FavoriteMovies: req.params.movieId } };
 
-    const user = await User
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options)
+        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
+        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
+        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
 
-    return res.sendSuccessResponse(
-      'User updated successfully',
-      user,
-      200
-    );
-  } catch (error) {
-    next(error);
-  }
-});
+      return res.sendSuccessResponse('User updated successfully', user, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 /**
  * @swagger
@@ -200,36 +192,30 @@ router.delete('/:email/favorite/:movieId', passport.authenticate('jwt', { sessio
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.post('/:email/watch/:movieId', passport.authenticate('jwt', { session: false }), async function (req, res) {
-  if(req.user.Email !== req.params.email) {
-    return res.sendErrorResponse(
-      'Permission denied',
-      403
-    );
-  }
+router.post(
+  '/:email/watch/:movieId',
+  passport.authenticate('jwt', { session: false }),
+  async function (req, res, next) {
+    if (req.user.Email !== req.params.email) {
+      return res.sendErrorResponse('Permission denied', 403);
+    }
 
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $push: { ToWatch: req.params.movieId } };
+    try {
+      const filter = { Email: req.params.email };
+      const options = { new: true };
+      const update = { $push: { ToWatch: req.params.movieId } };
 
-    const user = await User
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options)
+        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
+        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
+        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
 
-    return res.sendSuccessResponse(
-      'User updated successfully',
-      user,
-      200
-    );
-  } catch (error) {
-    console.error(error);
-
-    return res.status(500).json({ error: error.message });
-  }
-});
+      return res.sendSuccessResponse('User updated successfully', user, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 /**
  * @swagger
@@ -277,33 +263,29 @@ router.post('/:email/watch/:movieId', passport.authenticate('jwt', { session: fa
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.delete('/:email/watch/:movieId', passport.authenticate('jwt', { session: false }), async function (req, res) {
-  if(req.user.Email !== req.params.email) {
-    return res.sendErrorResponse(
-      'Permission denied',
-      403
-    );
-  }
+router.delete(
+  '/:email/watch/:movieId',
+  passport.authenticate('jwt', { session: false }),
+  async function (req, res, next) {
+    if (req.user.Email !== req.params.email) {
+      return res.sendErrorResponse('Permission denied', 403);
+    }
 
-  try {
-    const filter = { Email: req.params.email };
-    const options = { new: true };
-    const update = { $pull: { ToWatch: req.params.movieId } };
+    try {
+      const filter = { Email: req.params.email };
+      const options = { new: true };
+      const update = { $pull: { ToWatch: req.params.movieId } };
 
-    const user = await User
-      .findOneAndUpdate(filter, update, options)
-      .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-      .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-      .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options)
+        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
+        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
+        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
 
-    return res.sendSuccessResponse(
-      'User updated successfully',
-      user,
-      200
-    );
-  } catch (error) {
-    next(error);
-  }
-});
+      return res.sendSuccessResponse('User updated successfully', user, 200);
+    } catch (error) {
+      next(error);
+    }
+  },
+);
 
 module.exports = router;

@@ -1,12 +1,12 @@
-const express = require("express");
+const express = require('express');
 const logger = require('morgan');
 const path = require('path');
 const startCors = require('./utils/cors');
 const connect = require('./utils/connect');
 const swagger = require('./utils/swagger');
-const routes = require("../routes/api");
+const routes = require('../routes/api');
 
-require('dotenv').config()
+require('dotenv').config();
 
 const app = express();
 
@@ -22,10 +22,7 @@ app.use(require('./utils/responses'));
 app.use((err, req, res, next) => {
   console.error(err.stack);
 
-  return res.sendErrorResponse(
-    'Something broke!',
-    500
-  );
+  return res.sendErrorResponse('Something broke!', 500);
 });
 
 // listen for requests
