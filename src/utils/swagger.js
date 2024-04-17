@@ -1,6 +1,6 @@
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-const { version, author, description } = require("./package.json");
+const { version, author, description } = require("../../package.json");
 
 const options = {
   definition: {
@@ -119,19 +119,21 @@ const options = {
       bearerAuth: [],
     },
   },
-  apis: ["./controllers/*.js", "./models/*.js", "./auth.js"],
+  apis: ["./src/controllers/*.js", "./src/models/*.js", "./src/auth.js"],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
-function swaggerDocs(router, port) {
+function swagger(router, port) {
   // Swagger page
   router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   // Docs in JSON format
   router.use("/docs.json", (req, res) => {
     res.json(swaggerSpec);
-  })
+  });
+
+  console.info(`Docs available at http://localhost:${port}/docs`);
 }
 
-module.exports = swaggerDocs;
+module.exports = swagger;
