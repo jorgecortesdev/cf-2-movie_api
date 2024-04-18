@@ -88,22 +88,25 @@ const bcrypt = require('bcrypt');
  *                    type: string
  *                    example: User already exists.
  */
-let userSchema = mongoose.Schema({
-  Name: { type: String, required: true },
-  Email: { type: String, required: true },
-  Password: { type: String, required: true },
-  Birthday: Date,
-  FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
-  ToWatch: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
-}, {
-  timestamps: { createdAt: 'CreatedAt', updatedAt: 'UpdatedAt' }
-});
+const userSchema = mongoose.Schema(
+  {
+    Name: { type: String, required: true },
+    Email: { type: String, required: true },
+    Password: { type: String, required: true },
+    Birthday: Date,
+    FavoriteMovies: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
+    ToWatch: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Movie' }],
+  },
+  {
+    timestamps: { createdAt: 'CreatedAt', updatedAt: 'UpdatedAt' },
+  },
+);
 
 userSchema.statics.hashPassword = (password) => {
   return bcrypt.hashSync(password, 10);
 };
 
-userSchema.methods.validatePassword = function(password) {
+userSchema.methods.validatePassword = function (password) {
   return bcrypt.compareSync(password, this.Password);
 };
 

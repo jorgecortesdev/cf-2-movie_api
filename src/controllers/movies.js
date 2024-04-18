@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 
 const Movie = require('../models/movie');
+// eslint-disable-next-line no-unused-vars
 const Actor = require('../models/actor');
 
 /**
@@ -37,24 +38,18 @@ const Actor = require('../models/actor');
  *        $ref: '#/components/responses/UnauthorizedError'
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
-*/
-router.get('/', passport.authenticate('jwt', { session: false }), async function (req, res) {
+ */
+router.get('/', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
   try {
-    const movies = await Movie
-      .find()
+    const movies = await Movie.find()
       .select(['-CreatedAt', '-UpdatedAt'])
       .populate('Actors', ['-_id', '-CreatedAt', '-UpdatedAt']);
 
-    return res.sendSuccessResponse(
-      'Movies retrieved successfully',
-      movies,
-      200
-    );
+    return res.sendSuccessResponse('Movies retrieved successfully', movies, 200);
   } catch (error) {
     next(error);
   }
 });
-
 
 /**
  * @swagger
@@ -95,28 +90,20 @@ router.get('/', passport.authenticate('jwt', { session: false }), async function
  *        $ref: '#/components/responses/NotFound'
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
-*/
-router.get('/:title', passport.authenticate('jwt', { session: false }), async function (req, res) {
+ */
+router.get('/:title', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
   try {
     const { title } = req.params;
 
-    const movie = await Movie
-      .findOne({ Title: title })
+    const movie = await Movie.findOne({ Title: title })
       .select(['-CreatedAt', '-UpdatedAt'])
       .populate('Actors', ['-_id', '-CreatedAt', '-UpdatedAt']);
 
     if (movie) {
-      return res.sendSuccessResponse(
-        'Movie retrieved successfully',
-        movie,
-        200
-      );
+      return res.sendSuccessResponse('Movie retrieved successfully', movie, 200);
     }
 
-    return res.sendErrorResponse(
-      'No such movie',
-      404
-    );
+    return res.sendErrorResponse('No such movie', 404);
   } catch (error) {
     next(error);
   }

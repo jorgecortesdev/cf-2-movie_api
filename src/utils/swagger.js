@@ -1,12 +1,12 @@
-const swaggerJsdoc = require("swagger-jsdoc");
-const swaggerUi = require("swagger-ui-express");
-const { version, author, description } = require("../../package.json");
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
+const { version, author, description } = require('../../package.json');
 
 const options = {
   definition: {
-    openapi: "3.1.0",
+    openapi: '3.1.0',
     info: {
-      title: "myFlix - Movie API",
+      title: 'myFlix - Movie API',
       version,
       description,
       contact: author,
@@ -14,20 +14,20 @@ const options = {
     components: {
       securitySchemes: {
         bearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT"
-        }
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
       },
       responses: {
         UnauthorizedError: {
-          description: "Unauthorized."
+          description: 'Unauthorized.',
         },
         ValidationError: {
-          description: "Unprocessable Content."
+          description: 'Unprocessable Content.',
         },
         NotFound: {
-          description: "Not Found.",
+          description: 'Not Found.',
           content: {
             'application/json': {
               schema: {
@@ -35,28 +35,28 @@ const options = {
                 properties: {
                   success: {
                     type: 'boolean',
-                    example: false
+                    example: false,
                   },
                   error: {
                     type: 'object',
                     properties: {
                       code: {
                         type: 'integer',
-                        example: 404
+                        example: 404,
                       },
                       message: {
                         type: 'string',
-                        example: 'Not Found.'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+                        example: 'Not Found.',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         PermissionDenied: {
-          description: "Permission denied.",
+          description: 'Permission denied.',
           content: {
             'application/json': {
               schema: {
@@ -64,28 +64,28 @@ const options = {
                 properties: {
                   success: {
                     type: 'boolean',
-                    example: false
+                    example: false,
                   },
                   error: {
                     type: 'object',
                     properties: {
                       code: {
                         type: 'integer',
-                        example: 403
+                        example: 403,
                       },
                       message: {
                         type: 'string',
-                        example: 'Permission denied'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
+                        example: 'Permission denied',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
         ApplicationError: {
-          description: "Something broke!.",
+          description: 'Something broke!.',
           content: {
             'application/json': {
               schema: {
@@ -93,43 +93,43 @@ const options = {
                 properties: {
                   success: {
                     type: 'boolean',
-                    example: false
+                    example: false,
                   },
                   error: {
                     type: 'object',
                     properties: {
                       code: {
                         type: 'integer',
-                        example: 500
+                        example: 500,
                       },
                       message: {
                         type: 'string',
-                        example: 'Something broke!'
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
+                        example: 'Something broke!',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       },
     },
     security: {
       bearerAuth: [],
     },
   },
-  apis: ["./src/controllers/*.js", "./src/models/*.js", "./src/auth.js"],
+  apis: ['./src/controllers/*.js', './src/models/*.js', './src/auth.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);
 
 function swagger(router, port) {
   // Swagger page
-  router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  router.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
   // Docs in JSON format
-  router.use("/docs.json", (req, res) => {
+  router.use('/docs.json', (req, res) => {
     res.json(swaggerSpec);
   });
 

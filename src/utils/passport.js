@@ -1,10 +1,10 @@
-const passport = require('passport'),
-  LocalStrategy = require('passport-local').Strategy,
-  User = require('../models/user'),
-  passportJWT = require('passport-jwt');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const User = require('../models/user');
+const passportJWT = require('passport-jwt');
 
-let JWTStrategy = passportJWT.Strategy,
-  ExtractJWT = passportJWT.ExtractJwt;
+const JWTStrategy = passportJWT.Strategy;
+const ExtractJWT = passportJWT.ExtractJwt;
 
 passport.use(
   new LocalStrategy(
@@ -14,8 +14,7 @@ passport.use(
     },
     async (email, password, callback) => {
       console.log(`${email} ${password}`);
-      await User
-        .findOne({ Email: email })
+      await User.findOne({ Email: email })
         .select(['-_id', '-CreatedAt', '-UpdatedAt'])
         .then((user) => {
           if (!user) {
@@ -38,22 +37,25 @@ passport.use(
             return callback(error);
           }
         });
-    }
-  )
+    },
+  ),
 );
 
-
-passport.use(new JWTStrategy({
-  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'your_jwt_secret'
-}, async (jwtPayload, callback) => {
-  return await User
-    .findOne({ Email: jwtPayload.Email })
-    .select(['-_id', '-CreatedAt', '-UpdatedAt'])
-    .then((user) => {
-      return callback(null, user);
-    })
-    .catch((error) => {
-      return callback(error)
-    });
-}));
+passport.use(
+  new JWTStrategy(
+    {
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      secretOrKey: 'your_jwt_secret',
+    },
+    async (jwtPayload, callback) => {
+      return await User.findOne({ Email: jwtPayload.Email })
+        .select(['-_id', '-CreatedAt', '-UpdatedAt'])
+        .then((user) => {
+          return callback(null, user);
+        })
+        .catch((error) => {
+          return callback(error);
+        });
+    },
+  ),
+);

@@ -37,20 +37,15 @@ const User = require('../models/user');
  *        $ref: '#/components/responses/UnauthorizedError'
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
-*/
-router.get('/', passport.authenticate('jwt', { session: false }), async function (req, res) {
+ */
+router.get('/', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
   try {
-    const users = await User
-      .find()
+    const users = await User.find()
       .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
       .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
       .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
 
-    return res.sendSuccessResponse(
-      'Users retrieved successfully',
-      users,
-      200
-    );
+    return res.sendSuccessResponse('Users retrieved successfully', users, 200);
   } catch (error) {
     next(error);
   }
@@ -95,29 +90,21 @@ router.get('/', passport.authenticate('jwt', { session: false }), async function
  *        $ref: '#/components/responses/NotFound'
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
-*/
-router.get('/:email', passport.authenticate('jwt', { session: false }), async function (req, res) {
+ */
+router.get('/:email', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
   try {
     const { email } = req.params;
 
-    const user = await User
-      .findOne({ Email: email })
+    const user = await User.findOne({ Email: email })
       .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
       .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
       .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
 
     if (user) {
-      return res.sendSuccessResponse(
-        'User retrieved successfully',
-        user,
-        200
-      );
+      return res.sendSuccessResponse('User retrieved successfully', user, 200);
     }
 
-    return res.sendErrorResponse(
-      'No such user',
-      404
-    );
+    return res.sendErrorResponse('No such user', 404);
   } catch (error) {
     next(error);
   }
@@ -160,52 +147,56 @@ router.get('/:email', passport.authenticate('jwt', { session: false }), async fu
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.post('/', [
-  body('Name', 'Name is required').isLength({min: 5}),
-  body('Password', 'Password is required').not().isEmpty(),
-  body('Email', 'Email does not appear to be valid').isEmail()
-], async function (req, res) {
-  try {
-    // Check validation object for errors
-    let errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.sendErrorResponse(
-        errors.array(),
-        422 // Unprocessable Content
+router.post(
+  '/',
+  [
+    body('Name', 'Name is required').isLength({ min: 5 }),
+    body('Password', 'Password is required').not().isEmpty(),
+    body('Email', 'Email does not appear to be valid').isEmail(),
+  ],
+  async function (req, res, next) {
+    try {
+      // Check validation object for errors
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.sendErrorResponse(
+          errors.array(),
+          422, // Unprocessable Content
+        );
+      }
+
+      const newUser = req.body;
+
+      let user = await User.findOne({ Email: newUser.Email });
+      if (user) {
+        return res.sendErrorResponse(
+          'User already exists.',
+          400, // Bad Request
+        );
+      }
+
+      const hashedPassword = User.hashPassword(newUser.Password);
+      user = await User.create({
+        Email: newUser.Email,
+        Name: newUser.Name,
+        Password: hashedPassword,
+        Birthday: newUser.Birthday,
+      });
+
+      return res.sendSuccessResponse(
+        'User created successfully.',
+        {
+          Email: user.Email,
+          Name: user.Name,
+          Birthday: user.Birthday,
+        },
+        201,
       );
+    } catch (error) {
+      next(error);
     }
-
-    const newUser = req.body;
-
-    let user = await User.findOne({ Email: newUser.Email });
-    if (user) {
-      return res.sendErrorResponse(
-        'User already exists.',
-        400 // Bad Request
-      );
-    }
-
-    let hashedPassword = User.hashPassword(newUser.Password);
-    user = await User.create({
-      Email: newUser.Email,
-      Name: newUser.Name,
-      Password: hashedPassword,
-      Birthday: newUser.Birthday
-    });
-
-    return res.sendSuccessResponse(
-      'User created successfully.',
-      {
-        Email: user.Email,
-        Name: user.Name,
-        Birthday: user.Birthday
-      },
-      201
-    );
-  } catch (error) {
-    next(error);
-  }
-});
+  },
+);
 
 /**
  * @swagger
@@ -253,52 +244,55 @@ router.post('/', [
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.put('/:email', [
-    body('Name', 'Name is required').isLength({min: 5}).optional(),
-    body('Password', 'Password is required').not().isEmpty().optional()
+router.put(
+  '/:email',
+  [
+    body('Name', 'Name is required').isLength({ min: 5 }).optional(),
+    body('Password', 'Password is required').not().isEmpty().optional(),
   ],
-  passport.authenticate('jwt', { session: false }), async function (req, res) {
-    if(req.user.Email !== req.params.email) {
+  passport.authenticate('jwt', { session: false }),
+  async function (req, res, next) {
+    if (req.user.Email !== req.params.email) {
       return res.sendErrorResponse(
         'Permission denied',
-        403 //
+        403, //
       );
     }
 
     // Check validation object for errors
-    let errors = validationResult(req);
+    const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.sendErrorResponse(
         errors.array(),
-        422 // Unprocessable Content
+        422, // Unprocessable Content
       );
     }
 
     try {
       const filter = { Email: req.params.email };
       const options = { new: true };
-      let update = {};
+      const update = {};
 
       // update name if exists
       if (req.body.Name) {
-        update['Name'] = req.body.Name;
+        update.Name = req.body.Name;
       }
 
       // update password if exists
       if (req.body.Password) {
-        update['Password'] = req.body.Password;
+        update.Password = req.body.Password;
       }
 
       // update birthday if exists
       if (req.body.Birthday) {
-        update['Birthday'] = req.body.Birthday;
+        update.Birthday = req.body.Birthday;
       }
 
       const user = await User.findOneAndUpdate(filter, update, options);
-      if (! user) {
+      if (!user) {
         return res.sendErrorResponse(
           'No Found.',
-          404 // Not Found
+          404, // Not Found
         );
       }
 
@@ -307,15 +301,15 @@ router.put('/:email', [
         {
           Email: user.Email,
           Name: user.Name,
-          Birthday: user.Birthday
+          Birthday: user.Birthday,
         },
-        200 // OK
+        200, // OK
       );
     } catch (error) {
       next(error);
     }
-});
-
+  },
+);
 
 /**
  * @swagger
@@ -358,22 +352,22 @@ router.put('/:email', [
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
  */
-router.delete('/:email', passport.authenticate('jwt', { session: false }), async function (req, res) {
-  if(req.user.Email !== req.params.email) {
+router.delete('/:email', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
+  if (req.user.Email !== req.params.email) {
     return res.sendErrorResponse(
       'Permission denied',
-      403 // Forbidden
+      403, // Forbidden
     );
   }
 
   try {
     const { email } = req.params;
-    const user = await User.findOneAndDelete({ Email: email });
+    await User.deleteOne({ Email: email });
 
     return res.sendSuccessResponse(
       'User was deleted',
       {},
-      200 // OK
+      200, // OK
     );
   } catch (error) {
     next(error);

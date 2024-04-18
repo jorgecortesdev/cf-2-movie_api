@@ -43,24 +43,17 @@ const Movie = require('../models/movie');
  *        $ref: '#/components/responses/NotFound'
  *      500:
  *        $ref: '#/components/responses/ApplicationError'
-*/
-router.get('/:name', passport.authenticate('jwt', { session: false }), async function (req, res) {
+ */
+router.get('/:name', passport.authenticate('jwt', { session: false }), async function (req, res, next) {
   try {
     const { name } = req.params;
     const movie = await Movie.findOne({ 'Genre.Name': name });
 
     if (movie) {
-      return res.sendSuccessResponse(
-        'Genre retrieved successfully',
-        movie.Genre,
-        200
-      );
+      return res.sendSuccessResponse('Genre retrieved successfully', movie.Genre, 200);
     }
 
-    return res.sendErrorResponse(
-      'No such genre',
-      404
-    );
+    return res.sendErrorResponse('No such genre', 404);
   } catch (error) {
     next(error);
   }
