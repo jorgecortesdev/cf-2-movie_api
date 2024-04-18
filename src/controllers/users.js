@@ -280,7 +280,8 @@ router.put(
 
       // update password if exists
       if (req.body.Password) {
-        update.Password = req.body.Password;
+        const hashedPassword = User.hashPassword(req.body.Password);
+        update.Password = hashedPassword;
       }
 
       // update birthday if exists
