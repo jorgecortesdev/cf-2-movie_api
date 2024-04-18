@@ -3,7 +3,9 @@ const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
-const jwtSecret = 'your_jwt_secret'; // This has to be the same key used in the JWTStrategy
+require('dotenv').config();
+
+const jwtSecret = process.env.JWT_SECRET; // This has to be the same key used in the JWTStrategy
 
 require('../utils/passport'); // Your local passport file
 

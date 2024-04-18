@@ -28,7 +28,7 @@ app.use((err, req, res, next) => {
 // listen for requests
 const port = process.env.PORT || 8080;
 app.listen(port, async () => {
-  console.log(`Your app is listening aon port ${port}`);
+  console.log(`Your app is listening on port ${port}`);
 
   await connect();
 

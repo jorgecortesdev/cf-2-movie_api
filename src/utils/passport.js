@@ -6,6 +6,8 @@ const passportJWT = require('passport-jwt');
 const JWTStrategy = passportJWT.Strategy;
 const ExtractJWT = passportJWT.ExtractJwt;
 
+require('dotenv').config();
+
 passport.use(
   new LocalStrategy(
     {
@@ -45,7 +47,7 @@ passport.use(
   new JWTStrategy(
     {
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'your_jwt_secret',
+      secretOrKey: process.env.JWT_SECRET,
     },
     async (jwtPayload, callback) => {
       return await User.findOne({ Email: jwtPayload.Email })
