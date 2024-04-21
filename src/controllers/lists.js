@@ -63,10 +63,12 @@ router.post(
       const options = { new: true };
       const update = { $push: { FavoriteMovies: req.params.movieId } };
 
-      const user = await User.findOneAndUpdate(filter, update, options)
-        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options).select([
+        '-_id',
+        '-Password',
+        '-CreatedAt',
+        '-UpdatedAt',
+      ]);
 
       return res.sendSuccessResponse('User updated successfully', user, 200);
     } catch (error) {
@@ -134,10 +136,12 @@ router.delete(
       const options = { new: true };
       const update = { $pull: { FavoriteMovies: req.params.movieId } };
 
-      const user = await User.findOneAndUpdate(filter, update, options)
-        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options).select([
+        '-_id',
+        '-Password',
+        '-CreatedAt',
+        '-UpdatedAt',
+      ]);
 
       return res.sendSuccessResponse('User updated successfully', user, 200);
     } catch (error) {
@@ -205,10 +209,12 @@ router.post(
       const options = { new: true };
       const update = { $push: { ToWatch: req.params.movieId } };
 
-      const user = await User.findOneAndUpdate(filter, update, options)
-        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options).select([
+        '-_id',
+        '-Password',
+        '-CreatedAt',
+        '-UpdatedAt',
+      ]);
 
       return res.sendSuccessResponse('User updated successfully', user, 200);
     } catch (error) {
@@ -276,10 +282,12 @@ router.delete(
       const options = { new: true };
       const update = { $pull: { ToWatch: req.params.movieId } };
 
-      const user = await User.findOneAndUpdate(filter, update, options)
-        .select(['-_id', '-Password', '-CreatedAt', '-UpdatedAt'])
-        .populate('FavoriteMovies', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director'])
-        .populate('ToWatch', ['-CreatedAt', '-UpdatedAt', '-Actors', '-Genre', '-Director']);
+      const user = await User.findOneAndUpdate(filter, update, options).select([
+        '-_id',
+        '-Password',
+        '-CreatedAt',
+        '-UpdatedAt',
+      ]);
 
       return res.sendSuccessResponse('User updated successfully', user, 200);
     } catch (error) {
