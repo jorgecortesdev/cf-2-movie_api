@@ -41,6 +41,10 @@ const mongoose = require('mongoose');
  *          type: array
  *          items:
  *            $ref: '#/components/schemas/Actor'
+ *        Runtime:
+ *          type: integer
+ *          description: The length of the movie in minutes.
+ *          example: 152
  *    DirectorResponse:
  *      type: object
  *      properties:
@@ -90,6 +94,7 @@ const movieSchema = mongoose.Schema(
     Actors: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Actor' }],
     MPA: { type: String, required: true },
     IMDb: Number,
+    Runtime: Number,
   },
   {
     timestamps: { createdAt: 'CreatedAt', updatedAt: 'UpdatedAt' },
